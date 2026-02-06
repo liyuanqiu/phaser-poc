@@ -13,6 +13,7 @@ class GameScene extends Phaser.Scene {
         this.enemySightRange = 150;
         this.attackRange = 40;
         this.enemyCount = 5;
+        this.TILE_CLICK_THRESHOLD = 50;
     }
 
     create() {
@@ -172,6 +173,7 @@ class GameScene extends Phaser.Scene {
             enemy.health = 50;
             enemy.wanderTimer = 0;
             enemy.wanderDelay = Phaser.Math.Between(1000, 3000);
+            enemy.attackCooldown = 0;
             enemy.isChasing = false;
             enemy.isDead = false;
             
@@ -205,7 +207,7 @@ class GameScene extends Phaser.Scene {
                 const tile = this.tiles[y][x];
                 const dist = Phaser.Math.Distance.Between(worldX, worldY, tile.isoX, tile.isoY);
                 
-                if (dist < minDist && dist < 50) {
+                if (dist < minDist && dist < this.TILE_CLICK_THRESHOLD) {
                     minDist = dist;
                     closestTile = tile;
                 }
@@ -276,9 +278,13 @@ class GameScene extends Phaser.Scene {
                 
                 // Attack if in range
                 if (distToPlayer < this.attackRange) {
-                    // Enemy attacks (simplified - just show feedback)
-                    if (time % 1000 < delta * 2) {
+                    // Update attack cooldown
+                    enemy.attackCooldown -= delta;
+                    
+                    // Enemy attacks with cooldown
+                    if (enemy.attackCooldown <= 0) {
                         this.infoText.setText('Enemy is attacking you!');
+                        enemy.attackCooldown = 1000; // 1 second cooldown
                     }
                 }
             } else {
@@ -332,11 +338,6 @@ class GameScene extends Phaser.Scene {
         
         // Update player depth
         this.player.setDepth(100 + this.player.y);
-        
-        // Check for player attacks (spacebar or nearby enemies while stopped)
-        if (!this.isMoving && this.input.keyboard && this.input.keyboard.checkDown(this.input.keyboard.addKey('SPACE'), 500)) {
-            this.playerAttack();
-        }
         
         // Auto-attack nearby enemies
         if (!this.isMoving) {
