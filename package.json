@@ -1,0 +1,27 @@
+{
+  "name": "phaser-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liyuanqiu/phaser-poc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liyuanqiu/phaser-poc/issues"
+  },
+  "homepage": "https://github.com/liyuanqiu/phaser-poc#readme",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
