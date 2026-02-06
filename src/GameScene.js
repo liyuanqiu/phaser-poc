@@ -133,6 +133,7 @@ class GameScene extends Phaser.Scene {
         this.player.cartY = 10;
         this.player.health = 100;
         this.player.isAttacking = false;
+        this.player.attackCooldown = 0;
         
         this.player.setDepth(100);
     }
@@ -278,8 +279,10 @@ class GameScene extends Phaser.Scene {
                 
                 // Attack if in range
                 if (distToPlayer < this.attackRange) {
-                    // Update attack cooldown
-                    enemy.attackCooldown -= delta;
+                    // Update attack cooldown only if positive
+                    if (enemy.attackCooldown > 0) {
+                        enemy.attackCooldown -= delta;
+                    }
                     
                     // Enemy attacks with cooldown
                     if (enemy.attackCooldown <= 0) {
@@ -339,8 +342,13 @@ class GameScene extends Phaser.Scene {
         // Update player depth
         this.player.setDepth(100 + this.player.y);
         
+        // Update player attack cooldown
+        if (this.player.attackCooldown > 0) {
+            this.player.attackCooldown -= delta;
+        }
+        
         // Auto-attack nearby enemies
-        if (!this.isMoving) {
+        if (!this.isMoving && this.player.attackCooldown <= 0) {
             this.enemies.forEach(enemy => {
                 if (enemy.isDead) return;
                 
@@ -398,10 +406,12 @@ class GameScene extends Phaser.Scene {
         
         if (hitEnemy) {
             this.infoText.setText('Player punches enemy!');
+            // Set cooldown
+            this.player.attackCooldown = 500; // 0.5 second cooldown
         }
         
-        // Reset attack flag after cooldown
-        this.time.delayedCall(500, () => {
+        // Reset attack flag after animation
+        this.time.delayedCall(200, () => {
             this.player.isAttacking = false;
         });
     }
